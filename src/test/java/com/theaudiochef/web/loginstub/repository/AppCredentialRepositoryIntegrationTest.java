@@ -9,23 +9,35 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
-import com.theaudiochef.web.loginstub.domain.AppAccount;
-import com.theaudiochef.web.loginstub.repository.AppAccountRepository;
+import com.theaudiochef.web.loginstub.domain.AppCredential;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
 public class AppCredentialRepositoryIntegrationTest {
 
     @Autowired
-    AppAccountRepository appAccountRepository;
+    AppCredentialRepository appCredentialRepository;
     
+    //NOTE: These tests are dependent on the JpaBootstrapping class to load the data
+
     @Test
-    public void testFindByClientId(){
-        AppAccount appAccount = appAccountRepository.findByClientId("1");
+    public void testFindByAuthorizationCode(){
+        AppCredential appCredential = appCredentialRepository.findByAuthorizationCode("AC");
+        assertThat(appCredential.getAuthorizationCode(), equalTo("AC"));
         
-        assertThat(appAccount.getClientId(), equalTo("1"));
     }
     
+    @Test
+    public void testFindByRefreshToken(){
+        AppCredential appCredential = appCredentialRepository.findByRefreshToken("RT");
+        assertThat(appCredential.getRefreshToken(), equalTo("RT"));
+    }
     
+    @Test
+    public void testFindByAccessToken() {
+        AppCredential appCredential = appCredentialRepository.findByAccessToken("AT");
+        assertThat(appCredential.getAccessToken(), equalTo("AT"));
+        
+    }
     
 }

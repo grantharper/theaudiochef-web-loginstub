@@ -8,5 +8,9 @@ import com.theaudiochef.web.loginstub.domain.AppCredential;
 @Repository
 public interface AppCredentialRepository extends JpaRepository<AppCredential, Long>{
 
-    public AppCredential findByAuthorizationCode(String authorizationCode);
+    AppCredential findByAuthorizationCode(String authorizationCode);
+    
+    AppCredential findByRefreshToken(String refreshToken);
+    
+    AppCredential findByAccessToken(String accessToken);
 }

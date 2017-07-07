@@ -18,14 +18,14 @@ public class AppCredential extends AbstractDomainClass {
     private String accessToken;
 
     private String authorizationCode;
+    private LocalDateTime authorizationCodeExpireTime;
 
     private String appUserId;
     private String refreshToken;
-    private LocalDateTime expireTime;
+    private LocalDateTime accessTokenExpireTime;
     private String amazonTokenType;
 
-    public AppCredential() {
-    }
+    public AppCredential() {}
 
     /**
      * this constructor will create a user record for a new app that they would
@@ -40,26 +40,48 @@ public class AppCredential extends AbstractDomainClass {
         this.appUserId = generateAppUserId();
         this.amazonTokenType = "code";
         this.authorizationCode = generateAuthorizationCode();
+        this.authorizationCodeExpireTime = LocalDateTime.now().plusMinutes(5);
         this.accessToken = generateAccessToken();
         this.refreshToken = generateRefreshToken();
 
     }
 
-    private String generateAppUserId() {
-        return UUID.randomUUID()
-                   .toString();
+    protected String generateAppUserId() {
+        return generateRandomUUID();
     }
     
-    private String generateAuthorizationCode(){
+    protected String generateAuthorizationCode(){
+        return generateRandomUUID();
+    }
+    
+    protected String generateAccessToken(){
+        return generateRandomUUID();
+    }
+    
+    protected String generateRefreshToken(){
+        return generateRandomUUID();
+    }
+    
+    protected String generateRandomUUID(){
         return UUID.randomUUID().toString();
     }
     
-    private String generateAccessToken(){
-        return UUID.randomUUID().toString();
-    }
     
-    private String generateRefreshToken(){
-        return UUID.randomUUID().toString();
+
+    public LocalDateTime getAuthorizationCodeExpireTime() {
+        return authorizationCodeExpireTime;
+    }
+
+    public void setAuthorizationCodeExpireTime(LocalDateTime authorizationCodeExpireTime) {
+        this.authorizationCodeExpireTime = authorizationCodeExpireTime;
+    }
+
+    public LocalDateTime getAccessTokenExpireTime() {
+        return accessTokenExpireTime;
+    }
+
+    public void setAccessTokenExpireTime(LocalDateTime accessTokenExpireTime) {
+        this.accessTokenExpireTime = accessTokenExpireTime;
     }
 
     public AmazonUser getUser() {
@@ -108,14 +130,6 @@ public class AppCredential extends AbstractDomainClass {
 
     public void setRefreshToken(String refreshToken) {
         this.refreshToken = refreshToken;
-    }
-
-    public LocalDateTime getExpireTime() {
-        return expireTime;
-    }
-
-    public void setExpireTime(LocalDateTime expireTime) {
-        this.expireTime = expireTime;
     }
 
     public String getAmazonTokenType() {

@@ -10,4 +10,6 @@ public interface AppAccountRepository extends JpaRepository<AppAccount, Long> {
 
     public AppAccount findByClientId(String clientId);
     
+    public AppAccount findByClientIdAndClientSecret(String clientId, String clientSecret);
+    
 }

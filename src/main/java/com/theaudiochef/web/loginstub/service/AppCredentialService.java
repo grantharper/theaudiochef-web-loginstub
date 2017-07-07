@@ -10,5 +10,7 @@ public interface AppCredentialService {
 
     public String createAppCredential(AmazonUser loginCredentials, AuthRequest authRequest);
     
-    public Profile retrieveProfile();
+    public Object getAccessTokenFromAuthorizationCode(String authorizationCode, String clientId, String clientSecret);
+    
+    public Profile retrieveProfile(String accessToken);
 }
