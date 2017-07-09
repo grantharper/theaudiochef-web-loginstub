@@ -16,7 +16,6 @@ import com.theaudiochef.web.loginstub.domain.AppAccount;
 import com.theaudiochef.web.loginstub.domain.AppCredential;
 import com.theaudiochef.web.loginstub.domain.AuthRequest;
 import com.theaudiochef.web.loginstub.domain.Profile;
-import com.theaudiochef.web.loginstub.repository.AmazonUserRepository;
 import com.theaudiochef.web.loginstub.repository.AppAccountRepository;
 import com.theaudiochef.web.loginstub.repository.AppCredentialRepository;
 import com.theaudiochef.web.loginstub.service.AmazonLoginService;
@@ -25,20 +24,20 @@ import com.theaudiochef.web.loginstub.service.AppCredentialService;
 @Service
 public class AppCredentialServiceImpl implements AppCredentialService {
 
-    @Value("${accessToken.expireMilliseconds}")
+    @Value("${accessToken.expireMilliseconds:300000}")
     private Integer expireMilliseconds;
 
-    @Autowired
-    AppAccountRepository appAccountRepository;
+    private AppAccountRepository appAccountRepository;
+    private AmazonLoginService amazonLoginService;
+    private AppCredentialRepository appCredentialRepository;
 
     @Autowired
-    AmazonLoginService amazonLoginService;
-
-    @Autowired
-    AppCredentialRepository appCredentialRepository;
-
-    @Autowired
-    AmazonUserRepository amazonUserRepository;
+    public AppCredentialServiceImpl(AppAccountRepository appAccountRepository, AmazonLoginService amazonLoginService,
+            AppCredentialRepository appCredentialRepository) {
+        this.appAccountRepository = appAccountRepository;
+        this.amazonLoginService = amazonLoginService;
+        this.appCredentialRepository = appCredentialRepository;
+    }
 
     /**
      * will return the authorization code if successful
@@ -52,12 +51,13 @@ public class AppCredentialServiceImpl implements AppCredentialService {
 
         if (amazonUser != null) {
             AppAccount appAccount = appAccountRepository.findByClientId(authRequest.getClientId());
-            
-            //TODO handle situation where there is already an appCredential created for the user?
-            
+
+            // TODO handle situation where there is already an appCredential
+            // created for the user?
+
             AppCredential appCredential = new AppCredential(amazonUser, appAccount);
             appCredential.setAccessTokenExpireTime(LocalDateTime.now()
-                                                     .plusNanos(expireMilliseconds * 1000000));
+                                                                .plusNanos(getExpireMilliseconds() * 1000000));
             appCredentialRepository.save(appCredential);
             return appCredential.getAuthorizationCode();
         }
@@ -109,8 +109,9 @@ public class AppCredentialServiceImpl implements AppCredentialService {
                 return new ResponseEntity<>(AccessTokenError.getError(ERROR_TYPE.INVALID_REQUEST),
                         HttpStatus.BAD_REQUEST);
             }
-            
-            if(appCredential.getAuthorizationCodeExpireTime().isBefore(LocalDateTime.now())){
+
+            if (appCredential.getAuthorizationCodeExpireTime()
+                             .isBefore(LocalDateTime.now())) {
                 return new ResponseEntity<>(AccessTokenError.getError(ERROR_TYPE.INVALID_GRANT),
                         HttpStatus.BAD_REQUEST);
             }
@@ -120,5 +121,17 @@ public class AppCredentialServiceImpl implements AppCredentialService {
 
         return accessToken;
     }
+
+    
+    
+    public void setExpireMilliseconds(Integer expireMilliseconds) {
+        this.expireMilliseconds = expireMilliseconds;
+    }
+
+    public Integer getExpireMilliseconds() {
+        return expireMilliseconds;
+    }
+    
+    
 
 }

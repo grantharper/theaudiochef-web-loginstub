@@ -10,8 +10,12 @@ import com.theaudiochef.web.loginstub.service.AmazonLoginService;
 @Service
 public class AmazonLoginServiceImpl implements AmazonLoginService {
 
-    @Autowired
     private AmazonUserRepository amazonUserRepository;
+    
+    @Autowired
+    public AmazonLoginServiceImpl(AmazonUserRepository amazonUserRepository){
+        this.amazonUserRepository = amazonUserRepository;
+    }
 
     @Override
     public AmazonUser processLogin(AmazonUser loginCredentials) {

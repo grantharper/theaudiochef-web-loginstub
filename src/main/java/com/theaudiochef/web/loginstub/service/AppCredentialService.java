@@ -6,11 +6,11 @@ import com.theaudiochef.web.loginstub.domain.Profile;
 
 public interface AppCredentialService {
     
-    public boolean isValidAuthRequest(AuthRequest authRequest);
+    boolean isValidAuthRequest(AuthRequest authRequest);
 
-    public String createAppCredential(AmazonUser loginCredentials, AuthRequest authRequest);
+    String createAppCredential(AmazonUser loginCredentials, AuthRequest authRequest);
     
-    public Object getAccessTokenFromAuthorizationCode(String authorizationCode, String clientId, String clientSecret);
+    Object getAccessTokenFromAuthorizationCode(String authorizationCode, String clientId, String clientSecret);
     
-    public Profile retrieveProfile(String accessToken);
+    Profile retrieveProfile(String accessToken);
 }

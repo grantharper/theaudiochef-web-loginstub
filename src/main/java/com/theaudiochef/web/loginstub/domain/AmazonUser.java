@@ -21,7 +21,7 @@ public class AmazonUser extends AbstractDomainClass {
 	}
 	
 	public boolean verifyPassword(AmazonUser loginCredentials){
-	    if(this.password.equals(loginCredentials.getPassword())){
+	    if(this.getPassword().equals(loginCredentials.getPassword())){
 	        return true;
 	    }
 	    return false;
