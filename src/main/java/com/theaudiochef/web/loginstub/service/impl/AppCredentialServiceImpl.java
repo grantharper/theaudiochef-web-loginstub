@@ -68,7 +68,11 @@ public class AppCredentialServiceImpl implements AppCredentialService {
 
     @Override
     public Profile retrieveProfile(String accessToken) {
-        // TODO Auto-generated method stub
+        AppCredential appCredential = appCredentialRepository.findByAccessToken(accessToken);
+        if(appCredential != null){
+            Profile profile = new Profile(appCredential);
+            return profile;
+        }
         return null;
     }
 
@@ -83,7 +87,8 @@ public class AppCredentialServiceImpl implements AppCredentialService {
     }
 
     @Override
-    public Object getAccessTokenFromAuthorizationCode(String authorizationCode, String clientId, String clientSecret) {
+    public ResponseEntity getAccessTokenFromAuthorizationCode(String authorizationCode, String clientId,
+            String clientSecret) {
 
         AppCredential appCredential = null;
         // look up an app account by clientId and clientSecret
@@ -94,8 +99,7 @@ public class AppCredentialServiceImpl implements AppCredentialService {
             return new ResponseEntity<>(AccessTokenError.getError(ERROR_TYPE.INVALID_CLIENT), HttpStatus.BAD_REQUEST);
 
         } else {
-            // look up an app credential by authorization code and verify it is
-            // for the clientId supplied
+            // look up an app credential by authorization code
             appCredential = appCredentialRepository.findByAuthorizationCode(authorizationCode);
 
             if (appCredential == null) {
@@ -103,6 +107,7 @@ public class AppCredentialServiceImpl implements AppCredentialService {
                         HttpStatus.BAD_REQUEST);
             }
 
+            // verify the app credential looked up is for the supplied client id
             if (!appCredential.getApp()
                               .getClientId()
                               .equals(appAccount.getClientId())) {
@@ -119,11 +124,9 @@ public class AppCredentialServiceImpl implements AppCredentialService {
 
         AccessToken accessToken = new AccessToken(appCredential);
 
-        return accessToken;
+        return new ResponseEntity<>(accessToken, HttpStatus.OK);
     }
 
-    
-    
     public void setExpireMilliseconds(Integer expireMilliseconds) {
         this.expireMilliseconds = expireMilliseconds;
     }
@@ -131,7 +134,5 @@ public class AppCredentialServiceImpl implements AppCredentialService {
     public Integer getExpireMilliseconds() {
         return expireMilliseconds;
     }
-    
-    
 
 }
