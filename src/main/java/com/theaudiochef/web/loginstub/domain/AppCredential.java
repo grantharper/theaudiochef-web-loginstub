@@ -66,6 +66,9 @@ public class AppCredential extends AbstractDomainClass {
         return UUID.randomUUID().toString();
     }
     
+    public void regenerateAccessToken() {
+        setAccessToken(generateAccessToken());
+    }
     
 
     public LocalDateTime getAuthorizationCodeExpireTime() {

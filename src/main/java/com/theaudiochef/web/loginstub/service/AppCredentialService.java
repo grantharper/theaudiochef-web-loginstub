@@ -14,5 +14,7 @@ public interface AppCredentialService {
     
     ResponseEntity getAccessTokenFromAuthorizationCode(String authorizationCode, String clientId, String clientSecret);
     
-    Profile retrieveProfile(String accessToken);
+    ResponseEntity getAccessTokenFromRefreshToken(String refreshToken);
+    
+    ResponseEntity retrieveProfile(String accessToken);
 }

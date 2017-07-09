@@ -3,6 +3,7 @@ package com.theaudiochef.web.loginstub.controller;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.web.ServerProperties.Session;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -12,7 +13,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.SessionAttributes;
 
-import com.theaudiochef.web.loginstub.domain.AccessToken;
 import com.theaudiochef.web.loginstub.domain.AmazonUser;
 import com.theaudiochef.web.loginstub.domain.AuthRequest;
 import com.theaudiochef.web.loginstub.domain.Profile;
@@ -57,53 +57,39 @@ public class MainController {
             return "redirect:" + authRequest.getRedirectUri() + "?code=" + authCode + "&state="
                     + authRequest.getState();
         }
-        return "redirect:" + authRequest.getRedirectUri() + "?error";
+        return "redirect:" + authRequest.getRedirectUri() + "?error=access_denied&state=" + authRequest.getState();
     }
 
-    //token?grant_type=authorization_code&code=1234&client_id=1&client_secret=secret
-    @RequestMapping(value = "/token", params = {"grant_type=authorization_code"}, method = RequestMethod.POST)
-    public @ResponseBody Object getFirstAccessToken(
-            @RequestParam("code") String authorizationCode, @RequestParam("client_id") String clientId,
-            @RequestParam("client_secret") String clientSecret) {
-        
+    // token?grant_type=authorization_code&code=1234&client_id=1&client_secret=secret
+    @RequestMapping(value = "/token", params = { "grant_type=authorization_code" }, method = RequestMethod.POST)
+    public @ResponseBody ResponseEntity getFirstAccessToken(@RequestParam("code") String authorizationCode,
+            @RequestParam("client_id") String clientId, @RequestParam("client_secret") String clientSecret) {
+
         log.info("auth code method");
-        //check the auth code and the app credential. if successful, return the access token
+        // check the auth code and the app credential. if successful, return the
+        // access token
         return appCredentialService.getAccessTokenFromAuthorizationCode(authorizationCode, clientId, clientSecret);
-        
+
+    }
+
+    // token?grant_type=refresh_token&refresh_token=1234
+    @RequestMapping(value = "/token", params = { "grant_type=refresh_token" }, method = RequestMethod.POST)
+    public @ResponseBody ResponseEntity getRefreshAccessToken(@RequestParam("refresh_token") String refreshToken) {
+
+        log.info("refresh token method");
+
+        return appCredentialService.getAccessTokenFromRefreshToken(refreshToken);
+
     }
     
-    //token?grant_type=refresh_token&refresh_token=1234&client_id=1&client_secret=secret
-    @RequestMapping(value  = "/token", params= {"grant_type=refresh_token"}, method = RequestMethod.POST)
-    public @ResponseBody Object getRefreshAccessToken(
-            @RequestParam("refresh_token") String refreshToken, @RequestParam("client_id") String clientId,
-            @RequestParam("client_secret") String clientSecret){
-        
-        log.info("refresh token method");
-        
-        //TODO get new access token and refresh token if the token is valid
-        
-        AccessToken accessToken = new AccessToken();
-        accessToken.setAccess_token("refresh");
-        return accessToken;
-        
-    }
-
+    // user/profile?access_token=1234
     @RequestMapping(value = "/user/profile", method = RequestMethod.GET)
-    public @ResponseBody Object getUserProfile(@RequestParam("access_token") String accessToken){
-        
-        //TODO look up the appCredential with the access token and populate the Profile object
-        
-        Profile profile = new Profile();
-        
-        return profile;
-    }
+    public @ResponseBody Object getUserProfile(@RequestParam("access_token") String accessToken) {
 
-    @RequestMapping(value = "/rest", method = RequestMethod.GET) 
-    public @ResponseBody AmazonUser serializeUser() {
-        AmazonUser user = new AmazonUser();
-        user.setName("Grant");
-        user.setEmail("grant@grant.com");
-        return user;
+        log.info("retreieve profile method");
+
+        return appCredentialService.retrieveProfile(accessToken);
+
     }
 
 }

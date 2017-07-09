@@ -16,6 +16,7 @@ import com.theaudiochef.web.loginstub.domain.AppAccount;
 import com.theaudiochef.web.loginstub.domain.AppCredential;
 import com.theaudiochef.web.loginstub.domain.AuthRequest;
 import com.theaudiochef.web.loginstub.domain.Profile;
+import com.theaudiochef.web.loginstub.domain.ProfileError;
 import com.theaudiochef.web.loginstub.repository.AppAccountRepository;
 import com.theaudiochef.web.loginstub.repository.AppCredentialRepository;
 import com.theaudiochef.web.loginstub.service.AmazonLoginService;
@@ -67,13 +68,13 @@ public class AppCredentialServiceImpl implements AppCredentialService {
     }
 
     @Override
-    public Profile retrieveProfile(String accessToken) {
+    public ResponseEntity retrieveProfile(String accessToken) {
         AppCredential appCredential = appCredentialRepository.findByAccessToken(accessToken);
-        if(appCredential != null){
-            Profile profile = new Profile(appCredential);
-            return profile;
+        if (appCredential != null) {
+            return new ResponseEntity(new Profile(appCredential), HttpStatus.OK);
         }
-        return null;
+        return new ResponseEntity(ProfileError.getProfileError(ProfileError.ERROR_TYPE.INVALID_ACCESS_TOKEN),
+                HttpStatus.BAD_REQUEST);
     }
 
     @Override
@@ -133,6 +134,25 @@ public class AppCredentialServiceImpl implements AppCredentialService {
 
     public Integer getExpireMilliseconds() {
         return expireMilliseconds;
+    }
+
+    @Override
+    public ResponseEntity getAccessTokenFromRefreshToken(String refreshToken) {
+        AppCredential appCredential = appCredentialRepository.findByRefreshToken(refreshToken);
+
+        if (appCredential != null) {
+            appCredential.regenerateAccessToken();
+            appCredential.setAccessTokenExpireTime(LocalDateTime.now().plusNanos(expireMilliseconds * 1_000_000));
+            
+            appCredentialRepository.save(appCredential);
+
+            AccessToken accessToken = new AccessToken(appCredential);
+
+            return new ResponseEntity(accessToken, HttpStatus.OK);
+        }
+
+        return new ResponseEntity<>(AccessTokenError.getError(ERROR_TYPE.INVALID_REFRESH_TOKEN),
+                HttpStatus.BAD_REQUEST);
     }
 
 }

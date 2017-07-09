@@ -10,7 +10,6 @@ import static org.mockito.Mockito.when;
 import java.time.LocalDateTime;
 
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
@@ -26,17 +25,17 @@ import com.theaudiochef.web.loginstub.domain.AppAccount;
 import com.theaudiochef.web.loginstub.domain.AppCredential;
 import com.theaudiochef.web.loginstub.domain.AuthRequest;
 import com.theaudiochef.web.loginstub.domain.Profile;
+import com.theaudiochef.web.loginstub.domain.ProfileError;
 import com.theaudiochef.web.loginstub.repository.AppAccountRepository;
 import com.theaudiochef.web.loginstub.repository.AppCredentialRepository;
 import com.theaudiochef.web.loginstub.service.AmazonLoginService;
 
-//@RunWith(SpringRunner.class)
-//@SpringBootTest
 public class AppCredentialServiceImplTest {
 
     private static final String TEST_CLIENT_ID = "TEST";
     private static final String TEST_CLIENT_SECRET = "TEST_SECRET";
     private static final String TEST_ACCESS_TOKEN = "TEST_TOKEN";
+    private static final String TEST_REFRESH_TOKEN = "REFRESH_TOKEN";
     private static final String TEST_APP_USER_ID = "APP_USER_ID";
     private static final String TEST_NONEXISTING_CLIENT_ID = "DNE";
     private static final String TEST_USERNAME = "user1";
@@ -180,17 +179,38 @@ public class AppCredentialServiceImplTest {
         when(appCredentialRepository.findByAccessToken(TEST_ACCESS_TOKEN)).thenReturn(appCredential);
         when(appCredential.getUser()).thenReturn(amazonUser);
         when(appCredential.getAppUserId()).thenReturn(TEST_APP_USER_ID);
-        Profile profile = classUnderTest.retrieveProfile(TEST_ACCESS_TOKEN);
-        
+        ResponseEntity response = classUnderTest.retrieveProfile(TEST_ACCESS_TOKEN);
+        Profile profile = ((ResponseEntity<Profile>) response).getBody();
         assertThat(profile.getUser_id(), equalTo(TEST_APP_USER_ID));
     }
     
     @Test
     public void testRetrieveProfileFailure() {
         when(appCredentialRepository.findByAccessToken(TEST_ACCESS_TOKEN)).thenReturn(null);
-        Profile profile = classUnderTest.retrieveProfile(TEST_ACCESS_TOKEN);
+        ResponseEntity response = classUnderTest.retrieveProfile(TEST_ACCESS_TOKEN);
+        ProfileError profileError = ((ResponseEntity<ProfileError>) response).getBody();
         
-        assertThat(profile, equalTo(null));
+        assertThat(profileError.getError(), equalTo(ProfileError.ERROR_TYPE.INVALID_ACCESS_TOKEN.getError()));
+    }
+    
+    @Test
+    public void testUseRefreshToken() {
+        when(appCredentialRepository.findByRefreshToken(TEST_REFRESH_TOKEN)).thenReturn(appCredential);
+        when(appCredential.getApp()).thenReturn(appAccount);
+        ResponseEntity response = classUnderTest.getAccessTokenFromRefreshToken(TEST_REFRESH_TOKEN);
+        AccessToken token = ((ResponseEntity<AccessToken>) response).getBody();
+        assertThat(token, not(equalTo(null)));
+        assertThat(response.getStatusCode(), equalTo(HttpStatus.OK));
+        
+    }
+    
+    @Test
+    public void testUseRefreshTokenFailure() {
+        when(appCredentialRepository.findByRefreshToken(TEST_REFRESH_TOKEN)).thenReturn(null);
+        ResponseEntity response = classUnderTest.getAccessTokenFromRefreshToken(TEST_REFRESH_TOKEN);
+        AccessTokenError tokenError = ((ResponseEntity<AccessTokenError>) response).getBody();
+        assertThat(tokenError.getError(), equalTo(AccessTokenError.ERROR_TYPE.INVALID_REFRESH_TOKEN.getError()));
+        assertThat(response.getStatusCode(), equalTo(HttpStatus.BAD_REQUEST));
     }
 
 }

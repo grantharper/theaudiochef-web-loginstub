@@ -5,7 +5,8 @@ public class AccessTokenError {
     public static enum ERROR_TYPE{
         INVALID_CLIENT("Invalid_Client", "The client id was invalid", "fake"),
         INVALID_REQUEST("Invalid_Request", "The request was invalid", "fake"),
-        INVALID_GRANT("Invalid_Grant", "The grant could not be performed", "fake");
+        INVALID_GRANT("Invalid_Grant", "The grant could not be performed", "fake"),
+        INVALID_REFRESH_TOKEN("Invalid_Refresh_Token", "The refresh token was invalid", "fake");
         
         private String error;
         private String errorDescription;
