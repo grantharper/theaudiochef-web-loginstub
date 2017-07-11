@@ -29,7 +29,7 @@ public class AppAccountRepositoryIntegrationTest {
     }
     
     @Test
-    public void test() {
+    public void testFindByClientIdAndClientSecret() {
         AppAccount appAccount = appAccountRepository.findByClientIdAndClientSecret("1", "secret");
         assertThat(appAccount.getClientName(), equalTo("theaudiochef"));
     }

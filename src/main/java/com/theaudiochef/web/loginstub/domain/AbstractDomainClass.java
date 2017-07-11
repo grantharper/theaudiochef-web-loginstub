@@ -2,6 +2,7 @@ package com.theaudiochef.web.loginstub.domain;
 
 import java.util.Date;
 
+import javax.persistence.Column;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -21,7 +22,10 @@ public abstract class AbstractDomainClass implements DomainObject {
 	@Version
 	private Long version;
 	
+	@Column(name="dateCreated")
 	private Date dateCreated;
+	
+	@Column(name="lastUpdated")
 	private Date lastUpdated;
 	
 

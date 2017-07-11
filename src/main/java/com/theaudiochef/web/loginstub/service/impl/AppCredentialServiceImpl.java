@@ -26,7 +26,10 @@ import com.theaudiochef.web.loginstub.service.AppCredentialService;
 public class AppCredentialServiceImpl implements AppCredentialService {
 
     @Value("${accessToken.expireMilliseconds:300000}")
-    private Integer expireMilliseconds;
+    private Integer accessTokenExpireMilliseconds;
+    
+    @Value("${authorizationCode.expireMilliseconds:300000}")
+    private Integer authCodeExpireMilliseconds;
 
     private AppAccountRepository appAccountRepository;
     private AmazonLoginService amazonLoginService;
@@ -56,9 +59,9 @@ public class AppCredentialServiceImpl implements AppCredentialService {
             // TODO handle situation where there is already an appCredential
             // created for the user?
 
-            AppCredential appCredential = new AppCredential(amazonUser, appAccount);
+            AppCredential appCredential = new AppCredential(amazonUser, appAccount, authCodeExpireMilliseconds);
             appCredential.setAccessTokenExpireTime(LocalDateTime.now()
-                                                                .plusNanos(getExpireMilliseconds() * 1000000));
+                                                                .plusNanos(getAccessTokenExpireMilliseconds() * 1000000));
             appCredentialRepository.save(appCredential);
             return appCredential.getAuthorizationCode();
         }
@@ -109,7 +112,7 @@ public class AppCredentialServiceImpl implements AppCredentialService {
             }
 
             // verify the app credential looked up is for the supplied client id
-            if (!appCredential.getApp()
+            if (!appCredential.getAppAccount()
                               .getClientId()
                               .equals(appAccount.getClientId())) {
                 return new ResponseEntity<>(AccessTokenError.getError(ERROR_TYPE.INVALID_REQUEST),
@@ -128,21 +131,12 @@ public class AppCredentialServiceImpl implements AppCredentialService {
         return new ResponseEntity<>(accessToken, HttpStatus.OK);
     }
 
-    public void setExpireMilliseconds(Integer expireMilliseconds) {
-        this.expireMilliseconds = expireMilliseconds;
-    }
-
-    public Integer getExpireMilliseconds() {
-        return expireMilliseconds;
-    }
-
     @Override
     public ResponseEntity getAccessTokenFromRefreshToken(String refreshToken) {
         AppCredential appCredential = appCredentialRepository.findByRefreshToken(refreshToken);
 
         if (appCredential != null) {
-            appCredential.regenerateAccessToken();
-            appCredential.setAccessTokenExpireTime(LocalDateTime.now().plusNanos(expireMilliseconds * 1_000_000));
+            appCredential.resetAccessToken(LocalDateTime.now().plusNanos(accessTokenExpireMilliseconds * 1_000_000));
             
             appCredentialRepository.save(appCredential);
 
@@ -155,4 +149,21 @@ public class AppCredentialServiceImpl implements AppCredentialService {
                 HttpStatus.BAD_REQUEST);
     }
 
+    
+    
+    public void setAccessTokenExpireMilliseconds(Integer expireMilliseconds) {
+        this.accessTokenExpireMilliseconds = expireMilliseconds;
+    }
+
+    public Integer getAccessTokenExpireMilliseconds() {
+        return accessTokenExpireMilliseconds;
+    }
+
+    public Integer getAuthCodeExpireMilliseconds() {
+        return authCodeExpireMilliseconds;
+    }
+
+    public void setAuthCodeExpireMilliseconds(Integer authCodeExpireMilliseconds) {
+        this.authCodeExpireMilliseconds = authCodeExpireMilliseconds;
+    }
 }

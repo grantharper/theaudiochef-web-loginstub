@@ -1,14 +1,18 @@
 package com.theaudiochef.web.loginstub.domain;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 
 @Entity
 public class AppAccount extends AbstractDomainClass{
 
+    @Column(name="client_id")
     private String clientId;
     
+    @Column(name="client_name")
     private String clientName;
     
+    @Column(name="client_secret")
     private String clientSecret;
     
     public AppAccount(){}

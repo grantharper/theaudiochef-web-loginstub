@@ -3,7 +3,9 @@ package com.theaudiochef.web.loginstub.domain;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 
 @Entity
@@ -13,17 +15,29 @@ public class AppCredential extends AbstractDomainClass {
     private AmazonUser user;
 
     @ManyToOne
-    private AppAccount app;
-
-    private String accessToken;
-
-    private String authorizationCode;
-    private LocalDateTime authorizationCodeExpireTime;
-
+    @JoinColumn(name="app_account")
+    private AppAccount appAccount;
+    
+    @Column(name="app_user_id")
     private String appUserId;
-    private String refreshToken;
+
+    @Column(name="access_token")
+    private String accessToken;
+    
+    @Column(name="access_token_expire_time")
     private LocalDateTime accessTokenExpireTime;
+    
+    @Column(name="amazon_token_type")
     private String amazonTokenType;
+    
+    @Column(name="refresh_token")
+    private String refreshToken;
+    
+    @Column(name="authorization_code")
+    private String authorizationCode;
+    
+    @Column(name="authorization_code_expire_time")
+    private LocalDateTime authorizationCodeExpireTime;
 
     public AppCredential() {}
 
@@ -34,13 +48,13 @@ public class AppCredential extends AbstractDomainClass {
      * @param user
      * @param appId
      */
-    public AppCredential(AmazonUser user, AppAccount appAccount) {
+    public AppCredential(AmazonUser user, AppAccount appAccount, Integer minutesToAuthCodeExpiration) {
         this.user = user;
-        this.app = appAccount;
+        this.appAccount = appAccount;
         this.appUserId = generateAppUserId();
         this.amazonTokenType = "code";
         this.authorizationCode = generateAuthorizationCode();
-        this.authorizationCodeExpireTime = LocalDateTime.now().plusMinutes(5);
+        this.authorizationCodeExpireTime = LocalDateTime.now().plusMinutes(minutesToAuthCodeExpiration);
         this.accessToken = generateAccessToken();
         this.refreshToken = generateRefreshToken();
 
@@ -66,8 +80,9 @@ public class AppCredential extends AbstractDomainClass {
         return UUID.randomUUID().toString();
     }
     
-    public void regenerateAccessToken() {
+    public void resetAccessToken(LocalDateTime updatedAccessTokenExpireTime) {
         setAccessToken(generateAccessToken());
+        setAccessTokenExpireTime(updatedAccessTokenExpireTime);
     }
     
 
@@ -95,12 +110,12 @@ public class AppCredential extends AbstractDomainClass {
         this.user = user;
     }
 
-    public AppAccount getApp() {
-        return app;
+    public AppAccount getAppAccount() {
+        return appAccount;
     }
 
-    public void setApp(AppAccount app) {
-        this.app = app;
+    public void setAppAccount(AppAccount app) {
+        this.appAccount = app;
     }
 
     public String getAccessToken() {

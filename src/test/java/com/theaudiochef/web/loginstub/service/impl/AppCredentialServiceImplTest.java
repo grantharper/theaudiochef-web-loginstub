@@ -69,7 +69,8 @@ public class AppCredentialServiceImplTest {
     @Before
     public void setup() {
         MockitoAnnotations.initMocks(this);
-        classUnderTest.setExpireMilliseconds(300);
+        classUnderTest.setAccessTokenExpireMilliseconds(300);
+        classUnderTest.setAuthCodeExpireMilliseconds(300);
         when(authRequest.getClientId()).thenReturn(TEST_CLIENT_ID);
         when(amazonUser.getName()).thenReturn("Grant");
         when(amazonUser.getEmail()).thenReturn("email@email.com");
@@ -112,7 +113,7 @@ public class AppCredentialServiceImplTest {
                 appAccount);
         when(appCredentialRepository.findByAuthorizationCode(AUTH_CODE)).thenReturn(appCredential);
         when(appAccount.getClientId()).thenReturn(TEST_CLIENT_ID);
-        when(appCredential.getApp()).thenReturn(appAccount);
+        when(appCredential.getAppAccount()).thenReturn(appAccount);
         when(appCredential.getAuthorizationCodeExpireTime()).thenReturn(LocalDateTime.now().plusMinutes(1));
         when(appCredential.getAccessTokenExpireTime()).thenReturn(LocalDateTime.now().plusMinutes(5));
         ResponseEntity response = classUnderTest.getAccessTokenFromAuthorizationCode(AUTH_CODE, TEST_CLIENT_ID, TEST_CLIENT_SECRET);
@@ -152,7 +153,7 @@ public class AppCredentialServiceImplTest {
         when(appCredentialRepository.findByAuthorizationCode(AUTH_CODE)).thenReturn(appCredential);
         when(appAccount.getClientId()).thenReturn(TEST_CLIENT_ID);
         when(invalidAppAccount.getClientId()).thenReturn("invalid");
-        when(appCredential.getApp()).thenReturn(invalidAppAccount);
+        when(appCredential.getAppAccount()).thenReturn(invalidAppAccount);
         ResponseEntity response = classUnderTest.getAccessTokenFromAuthorizationCode(AUTH_CODE, TEST_CLIENT_ID, TEST_CLIENT_SECRET);
         assertThat(response.getStatusCode(), equalTo(HttpStatus.BAD_REQUEST));
         AccessTokenError error = ((ResponseEntity<AccessTokenError>) response).getBody();
@@ -165,7 +166,7 @@ public class AppCredentialServiceImplTest {
         when(appAccountRepository.findByClientIdAndClientSecret(TEST_CLIENT_ID, TEST_CLIENT_SECRET)).thenReturn(appAccount);
         when(appCredentialRepository.findByAuthorizationCode(AUTH_CODE)).thenReturn(appCredential);
         when(appAccount.getClientId()).thenReturn(TEST_CLIENT_ID);
-        when(appCredential.getApp()).thenReturn(appAccount);
+        when(appCredential.getAppAccount()).thenReturn(appAccount);
         when(appCredential.getAuthorizationCodeExpireTime()).thenReturn(LocalDateTime.now().minusMinutes(1));
         ResponseEntity response = classUnderTest.getAccessTokenFromAuthorizationCode(AUTH_CODE, TEST_CLIENT_ID, TEST_CLIENT_SECRET);
         assertThat(response.getStatusCode(), equalTo(HttpStatus.BAD_REQUEST));
@@ -196,7 +197,7 @@ public class AppCredentialServiceImplTest {
     @Test
     public void testUseRefreshToken() {
         when(appCredentialRepository.findByRefreshToken(TEST_REFRESH_TOKEN)).thenReturn(appCredential);
-        when(appCredential.getApp()).thenReturn(appAccount);
+        when(appCredential.getAppAccount()).thenReturn(appAccount);
         ResponseEntity response = classUnderTest.getAccessTokenFromRefreshToken(TEST_REFRESH_TOKEN);
         AccessToken token = ((ResponseEntity<AccessToken>) response).getBody();
         assertThat(token, not(equalTo(null)));

@@ -69,7 +69,7 @@ public class SpringJpaBootstrap implements ApplicationListener<ContextRefreshedE
     private void loadAppCredentials() {
         log.info("loading app credential data to the database");
         
-        appCred1 = new AppCredential(user1, app1);
+        appCred1 = new AppCredential(user1, app1, 300000);
         appCred1.setAuthorizationCode("AC");
         appCred1.setAccessToken("AT");
         appCred1.setAppUserId("AUID");
