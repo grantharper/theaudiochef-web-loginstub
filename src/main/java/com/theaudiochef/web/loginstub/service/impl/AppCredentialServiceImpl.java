@@ -27,7 +27,7 @@ public class AppCredentialServiceImpl implements AppCredentialService {
 
     @Value("${accessToken.expireMilliseconds:300000}")
     private Integer accessTokenExpireMilliseconds;
-    
+
     @Value("${authorizationCode.expireMilliseconds:300000}")
     private Integer authCodeExpireMilliseconds;
 
@@ -59,9 +59,10 @@ public class AppCredentialServiceImpl implements AppCredentialService {
             // TODO handle situation where there is already an appCredential
             // created for the user?
 
-            AppCredential appCredential = new AppCredential(amazonUser, appAccount, authCodeExpireMilliseconds);
+            AppCredential appCredential = new AppCredential(amazonUser, appAccount, getAuthCodeExpireMilliseconds());
             appCredential.setAccessTokenExpireTime(LocalDateTime.now()
-                                                                .plusNanos(getAccessTokenExpireMilliseconds() * 1000000));
+                                                                .plusNanos(
+                                                                        getAccessTokenExpireMilliseconds() * 1000000));
             appCredentialRepository.save(appCredential);
             return appCredential.getAuthorizationCode();
         }
@@ -88,6 +89,19 @@ public class AppCredentialServiceImpl implements AppCredentialService {
         } else {
             return false;
         }
+    }
+
+    @Override
+    public AuthRequest generateAuthRequest(String clientId, String scope, String responseType, String redirectUri,
+            String state) {
+
+        AuthRequest authRequest = new AuthRequest(clientId, scope, responseType, redirectUri, state);
+
+        if (isValidAuthRequest(authRequest)) {
+            return authRequest;
+        }
+        return null;
+
     }
 
     @Override
@@ -136,8 +150,9 @@ public class AppCredentialServiceImpl implements AppCredentialService {
         AppCredential appCredential = appCredentialRepository.findByRefreshToken(refreshToken);
 
         if (appCredential != null) {
-            appCredential.resetAccessToken(LocalDateTime.now().plusNanos(accessTokenExpireMilliseconds * 1_000_000));
-            
+            appCredential.resetAccessToken(LocalDateTime.now()
+                                                        .plusNanos(accessTokenExpireMilliseconds * 1_000_000));
+
             appCredentialRepository.save(appCredential);
 
             AccessToken accessToken = new AccessToken(appCredential);
@@ -149,8 +164,6 @@ public class AppCredentialServiceImpl implements AppCredentialService {
                 HttpStatus.BAD_REQUEST);
     }
 
-    
-    
     public void setAccessTokenExpireMilliseconds(Integer expireMilliseconds) {
         this.accessTokenExpireMilliseconds = expireMilliseconds;
     }

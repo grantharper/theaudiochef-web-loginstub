@@ -32,13 +32,13 @@ public class MainController {
     public String processAuthRequest(Model model, Session session, @RequestParam("client_id") String clientId,
             @RequestParam("scope") String scope, @RequestParam("response_type") String responseType,
             @RequestParam("redirect_uri") String redirectUri, @RequestParam("state") String state) {
-
-        AuthRequest authRequest = new AuthRequest(clientId, scope, responseType, redirectUri, state);
-        if (appCredentialService.isValidAuthRequest(authRequest)) {
+        
+        AuthRequest authRequest = appCredentialService.generateAuthRequest(clientId, scope, responseType, redirectUri, state);
+        if (authRequest != null) {
             model.addAttribute("authRequest", authRequest);
             return "redirect:/login";
         } else {
-            return "redirect:" + redirectUri + "?error";
+            return "redirect:" + redirectUri + "?error=invalid_parameters";
         }
 
     }
@@ -62,10 +62,10 @@ public class MainController {
 
     // token?grant_type=authorization_code&code=1234&client_id=1&client_secret=secret
     @RequestMapping(value = "/token", params = { "grant_type=authorization_code" }, method = RequestMethod.POST)
-    public @ResponseBody ResponseEntity getFirstAccessToken(@RequestParam("code") String authorizationCode,
+    public @ResponseBody ResponseEntity getInitialAccessToken(@RequestParam("code") String authorizationCode,
             @RequestParam("client_id") String clientId, @RequestParam("client_secret") String clientSecret) {
 
-        log.info("auth code method");
+        log.info("authorization_code=" + authorizationCode);
         // check the auth code and the app credential. if successful, return the
         // access token
         return appCredentialService.getAccessTokenFromAuthorizationCode(authorizationCode, clientId, clientSecret);
@@ -76,7 +76,7 @@ public class MainController {
     @RequestMapping(value = "/token", params = { "grant_type=refresh_token" }, method = RequestMethod.POST)
     public @ResponseBody ResponseEntity getRefreshAccessToken(@RequestParam("refresh_token") String refreshToken) {
 
-        log.info("refresh token method");
+        log.info("refresh_token=" + refreshToken);
 
         return appCredentialService.getAccessTokenFromRefreshToken(refreshToken);
 
@@ -84,9 +84,9 @@ public class MainController {
     
     // user/profile?access_token=1234
     @RequestMapping(value = "/user/profile", method = RequestMethod.GET)
-    public @ResponseBody Object getUserProfile(@RequestParam("access_token") String accessToken) {
+    public @ResponseBody ResponseEntity getUserProfile(@RequestParam("access_token") String accessToken) {
 
-        log.info("retreieve profile method");
+        log.info("access_token=" + accessToken);
 
         return appCredentialService.retrieveProfile(accessToken);
 
