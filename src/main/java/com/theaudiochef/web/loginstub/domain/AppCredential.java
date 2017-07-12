@@ -48,13 +48,13 @@ public class AppCredential extends AbstractDomainClass {
      * @param user
      * @param appId
      */
-    public AppCredential(AmazonUser user, AppAccount appAccount, Integer minutesToAuthCodeExpiration) {
+    public AppCredential(AmazonUser user, AppAccount appAccount, Integer nanoSecondsToAuthCodeExpiration) {
         this.user = user;
         this.appAccount = appAccount;
         this.appUserId = generateAppUserId();
         this.amazonTokenType = "code";
         this.authorizationCode = generateAuthorizationCode();
-        this.authorizationCodeExpireTime = LocalDateTime.now().plusMinutes(minutesToAuthCodeExpiration);
+        this.authorizationCodeExpireTime = LocalDateTime.now().plusNanos(nanoSecondsToAuthCodeExpiration);
         this.accessToken = generateAccessToken();
         this.refreshToken = generateRefreshToken();
 

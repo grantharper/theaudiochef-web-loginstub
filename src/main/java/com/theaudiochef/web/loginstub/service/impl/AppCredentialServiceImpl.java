@@ -59,10 +59,10 @@ public class AppCredentialServiceImpl implements AppCredentialService {
             // TODO handle situation where there is already an appCredential
             // created for the user?
 
-            AppCredential appCredential = new AppCredential(amazonUser, appAccount, getAuthCodeExpireMilliseconds());
+            AppCredential appCredential = new AppCredential(amazonUser, appAccount, getAuthCodeExpireMilliseconds() * 1_000_000);
             appCredential.setAccessTokenExpireTime(LocalDateTime.now()
                                                                 .plusNanos(
-                                                                        getAccessTokenExpireMilliseconds() * 1000000));
+                                                                        getAccessTokenExpireMilliseconds() * 1_000_000));
             appCredentialRepository.save(appCredential);
             return appCredential.getAuthorizationCode();
         }
