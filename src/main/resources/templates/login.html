@@ -5,21 +5,21 @@
 <!--/*/ <th:block th:include="fragments/header :: head"></th:block> /*/-->
 </head>
 <body>
-	<div th:replace="fragments/navbar :: navbar"></div>
 	<div class="container">
-	<div class="starter-template">
+	<div>
 	<h1>Mock Amazon Login Page</h1>
-	<form th:action="@{/process}" th:object="${amazonUser}" method="post">
+	<form class="col-sm-4" th:action="@{/process}" th:object="${amazonUser}" method="post">
 		<div>
 			<label for="username">Username</label>
-			<input type="text" th:field="*{username}"/>
+			<input class="form-control" type="text" th:field="*{username}"/>
 		</div>
 		<div>
 			<label for="password">Password</label>
-			<input type="password" th:field="*{password}"/>
+			<input class="form-control" type="password" th:field="*{password}"/>
 		</div>
+		<br/>
 		<div>
-			<input type="submit" value="process"/>
+			<input class="btn btn-primary" type="submit" value="Login"/>
 		</div>
 	</form>
 	</div>

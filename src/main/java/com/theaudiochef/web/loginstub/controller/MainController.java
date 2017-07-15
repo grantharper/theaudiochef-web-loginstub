@@ -15,7 +15,6 @@ import org.springframework.web.bind.annotation.SessionAttributes;
 
 import com.theaudiochef.web.loginstub.domain.AmazonUser;
 import com.theaudiochef.web.loginstub.domain.AuthRequest;
-import com.theaudiochef.web.loginstub.domain.Profile;
 import com.theaudiochef.web.loginstub.service.AppCredentialService;
 
 @Controller
@@ -62,7 +61,7 @@ public class MainController {
 
     // token?grant_type=authorization_code&code=1234&client_id=1&client_secret=secret
     @RequestMapping(value = "/token", params = { "grant_type=authorization_code" }, method = RequestMethod.POST)
-    public @ResponseBody ResponseEntity getInitialAccessToken(@RequestParam("code") String authorizationCode,
+    public @ResponseBody ResponseEntity<Object> getInitialAccessToken(@RequestParam("code") String authorizationCode,
             @RequestParam("client_id") String clientId, @RequestParam("client_secret") String clientSecret) {
 
         log.info("authorization_code=" + authorizationCode);
@@ -74,7 +73,7 @@ public class MainController {
 
     // token?grant_type=refresh_token&refresh_token=1234
     @RequestMapping(value = "/token", params = { "grant_type=refresh_token" }, method = RequestMethod.POST)
-    public @ResponseBody ResponseEntity getRefreshAccessToken(@RequestParam("refresh_token") String refreshToken) {
+    public @ResponseBody ResponseEntity<Object> getRefreshAccessToken(@RequestParam("refresh_token") String refreshToken) {
 
         log.info("refresh_token=" + refreshToken);
 
@@ -84,7 +83,7 @@ public class MainController {
     
     // user/profile?access_token=1234
     @RequestMapping(value = "/user/profile", method = RequestMethod.GET)
-    public @ResponseBody ResponseEntity getUserProfile(@RequestParam("access_token") String accessToken) {
+    public @ResponseBody ResponseEntity<Object> getUserProfile(@RequestParam("access_token") String accessToken) {
 
         log.info("access_token=" + accessToken);
 

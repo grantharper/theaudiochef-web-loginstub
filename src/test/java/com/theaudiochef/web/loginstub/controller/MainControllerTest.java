@@ -23,13 +23,6 @@ public class MainControllerTest {
     private static final String TEST_RESPONSE_TYPE = "ac";
     private static final String REDIRECT_URI = "/redirect";
     private static final String STATE = "1234-state";
-    private static final String TEST_CLIENT_SECRET = "TEST_SECRET";
-    private static final String TEST_ACCESS_TOKEN = "TEST_TOKEN";
-    private static final String TEST_REFRESH_TOKEN = "REFRESH_TOKEN";
-    private static final String TEST_APP_USER_ID = "APP_USER_ID";
-    private static final String TEST_NONEXISTING_CLIENT_ID = "DNE";
-    private static final String TEST_USERNAME = "user1";
-    private static final String TEST_PASSWORD = "pw";
     private static final String AUTH_CODE = "blahblahblah";
 
     @InjectMocks

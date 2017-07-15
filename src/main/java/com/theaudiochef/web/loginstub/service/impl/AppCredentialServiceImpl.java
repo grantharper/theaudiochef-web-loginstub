@@ -72,12 +72,12 @@ public class AppCredentialServiceImpl implements AppCredentialService {
     }
 
     @Override
-    public ResponseEntity retrieveProfile(String accessToken) {
+    public ResponseEntity<Object> retrieveProfile(String accessToken) {
         AppCredential appCredential = appCredentialRepository.findByAccessToken(accessToken);
         if (appCredential != null) {
-            return new ResponseEntity(new Profile(appCredential), HttpStatus.OK);
+            return new ResponseEntity<>(new Profile(appCredential), HttpStatus.OK);
         }
-        return new ResponseEntity(ProfileError.getProfileError(ProfileError.ERROR_TYPE.INVALID_ACCESS_TOKEN),
+        return new ResponseEntity<>(ProfileError.getProfileError(ProfileError.ERROR_TYPE.INVALID_ACCESS_TOKEN),
                 HttpStatus.BAD_REQUEST);
     }
 
@@ -105,7 +105,7 @@ public class AppCredentialServiceImpl implements AppCredentialService {
     }
 
     @Override
-    public ResponseEntity getAccessTokenFromAuthorizationCode(String authorizationCode, String clientId,
+    public ResponseEntity<Object> getAccessTokenFromAuthorizationCode(String authorizationCode, String clientId,
             String clientSecret) {
 
         AppCredential appCredential = null;
@@ -146,7 +146,7 @@ public class AppCredentialServiceImpl implements AppCredentialService {
     }
 
     @Override
-    public ResponseEntity getAccessTokenFromRefreshToken(String refreshToken) {
+    public ResponseEntity<Object> getAccessTokenFromRefreshToken(String refreshToken) {
         AppCredential appCredential = appCredentialRepository.findByRefreshToken(refreshToken);
 
         if (appCredential != null) {
@@ -157,7 +157,7 @@ public class AppCredentialServiceImpl implements AppCredentialService {
 
             AccessToken accessToken = new AccessToken(appCredential);
 
-            return new ResponseEntity(accessToken, HttpStatus.OK);
+            return new ResponseEntity<>(accessToken, HttpStatus.OK);
         }
 
         return new ResponseEntity<>(AccessTokenError.getError(ERROR_TYPE.INVALID_REFRESH_TOKEN),
